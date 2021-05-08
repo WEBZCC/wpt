@@ -9,6 +9,9 @@ import uuid
 
 from html import escape
 from io import BytesIO
+from typing import Any, Callable, ClassVar, Dict, Optional, TypeVar
+
+T = TypeVar('T')
 
 
 def resolve_content(response):
@@ -16,7 +19,7 @@ def resolve_content(response):
 
 
 class Pipeline(object):
-    pipes = {}
+    pipes = {}  # type: ClassVar[Dict[str, Callable[..., Any]]]
 
     def __init__(self, pipe_string):
         self.pipe_functions = self.parse(pipe_string)
@@ -106,7 +109,7 @@ class PipeTokenizer(object):
 
 
 class pipe(object):
-    def __init__(self, *arg_converters):
+    def __init__(self, *arg_converters: Callable[[str], Any]):
         self.arg_converters = arg_converters
         self.max_args = len(self.arg_converters)
         self.min_args = 0
@@ -134,15 +137,15 @@ class pipe(object):
 
 
 class opt(object):
-    def __init__(self, f):
+    def __init__(self, f: Callable[[Any], Any]):
         self.f = f
 
-    def __call__(self, arg):
+    def __call__(self, arg: Any) -> Any:
         return self.f(arg)
 
 
-def nullable(func):
-    def inner(arg):
+def nullable(func: Callable[[str], T]) -> Callable[[str], Optional[T]]:
+    def inner(arg: str) -> Optional[T]:
         if arg.lower() == "null":
             return None
         else:

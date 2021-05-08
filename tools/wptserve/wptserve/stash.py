@@ -3,6 +3,7 @@ import json
 import os
 import threading
 import uuid
+from typing import Any, Dict
 
 from multiprocessing.managers import AcquirerProxy, BaseManager, DictProxy
 
@@ -10,7 +11,7 @@ from .utils import isomorphic_encode
 
 
 class ServerDictManager(BaseManager):
-    shared_data = {}
+    shared_data: Dict[str, object] = {}
     lock = threading.Lock()
 
 
