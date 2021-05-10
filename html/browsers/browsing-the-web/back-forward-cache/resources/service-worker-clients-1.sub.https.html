@@ -1,0 +1,36 @@
+<!doctype html>
+<script src="/resources/testharness.js"></script>
+<script src="/common/PrefixedLocalStorage.js"></script>
+<script src="helper.sub.js"></script>
+<iframe></iframe>
+<script>
+startRecordingEvents([]);
+
+const t = async_test('BFCached pages should not appear in Clients#matchAll()');
+runTest(
+  () => {
+    const iframe = document.querySelector('iframe');
+    iframe.src = prefixedLocalStorage.url('https://{{host}}:{{ports[https][0]}}/html/browsers/browsing-the-web/back-forward-cache/resources/clients-matchall-iframe.html?key=clients-1');
+    iframe.onload = () => {
+      iframe.contentWindow.postMessage('start', '*');
+      window.onmessage = () => {
+        location.href = prefixedLocalStorage.url(origin + '/html/browsers/browsing-the-web/back-forward-cache/resources/service-worker-clients-2.sub.https.html');
+      };
+    };
+  },
+  t.step_func_done((isBFCached, observedEvents) => {
+    assert_implements_optional(isBFCached, 'Should be BFCached');
+
+    const bfCachedUrl = location.href;
+    const actualClients1 = JSON.parse(prefixedLocalStorage.getItem('clients-1'));
+    assert_true(actualClients1.indexOf(bfCachedUrl) >= 0,
+      'Clients#matchAll() should contain clients-1 while clients-1 page is active');
+
+    // `service-worker-clients-1.sub.https.html` shouldn't appear here because it is in BFCache.
+    // `service-worker-clients-2.sub.https.html` doesn't appear here because it is served on a different site.
+    const actualClients2 = JSON.parse(prefixedLocalStorage.getItem('clients-2'));
+    assert_true(actualClients2.indexOf(bfCachedUrl) === -1,
+      'Clients#matchAll() should not contain clients-1 while clients-1 page is in BFCache');
+  })
+);
+</script>
