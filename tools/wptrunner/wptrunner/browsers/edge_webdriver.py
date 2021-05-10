@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 from .base import inherit
 from . import edge
 

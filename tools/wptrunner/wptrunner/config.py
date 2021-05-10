@@ -2,10 +2,11 @@ from configparser import SafeConfigParser
 import os
 import sys
 from collections import OrderedDict
+from typing import Any, Dict
 
 here = os.path.dirname(__file__)
 
-class ConfigDict(dict):
+class ConfigDict(Dict[Any, Any]):
     def __init__(self, base_path, *args, **kwargs):
         self.base_path = base_path
         dict.__init__(self, *args, **kwargs)

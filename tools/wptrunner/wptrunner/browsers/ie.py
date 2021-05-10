@@ -41,8 +41,6 @@ def env_options():
     return {"supports_debugger": False}
 
 class InternetExplorerBrowser(Browser):
-    used_ports = set()
-
     def __init__(self, logger, webdriver_binary, webdriver_args=None, **kwargs):
         Browser.__init__(self, logger)
         self.server = InternetExplorerDriverServer(self.logger,

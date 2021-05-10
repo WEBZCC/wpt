@@ -3,6 +3,7 @@ import os
 from urllib.parse import urljoin, urlsplit
 from collections import namedtuple, defaultdict, deque
 from math import ceil
+from typing import Any, Callable, ClassVar
 
 from .wptmanifest import serialize
 from .wptmanifest.node import (DataNode, ConditionalNode, BinaryExpressionNode,
@@ -320,10 +321,10 @@ def build_unconditional_tree(_, run_info_properties, results):
 
 
 class PropertyUpdate(object):
-    property_name = None
-    cls_default_value = None
-    value_type = None
-    property_builder = None
+    property_name = None  # type: ClassVar[str]
+    cls_default_value = None  # type: ClassVar[Any]
+    value_type = None  # type: ClassVar[type]
+    property_builder = None  # type: ClassVar[Callable[[Any, Any, Any], Any]]
 
     def __init__(self, node):
         self.node = node
@@ -764,7 +765,7 @@ class MinAssertsUpdate(PropertyUpdate):
 
 
 class AppendOnlyListUpdate(PropertyUpdate):
-    cls_default_value = []
+    cls_default_value = []  # type: ignore
     property_builder = build_unconditional_tree
 
     def updated_value(self, current, new):
@@ -817,7 +818,7 @@ class LeakObjectUpdate(AppendOnlyListUpdate):
 
 class LeakThresholdUpdate(PropertyUpdate):
     property_name = "leak-threshold"
-    cls_default_value = {}
+    cls_default_value = {}  # type: ignore
     property_builder = build_unconditional_tree
 
     def from_result_value(self, result):

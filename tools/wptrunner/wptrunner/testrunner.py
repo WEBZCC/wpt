@@ -4,6 +4,7 @@ import threading
 import traceback
 from queue import Empty
 from collections import namedtuple
+from typing import Callable
 
 from mozlog import structuredlog, capture
 
@@ -35,7 +36,7 @@ class MessageLogger(object):
         self._log_data("process_output", process=process, data=data, command=command)
 
 
-def _log_func(level_name):
+def _log_func(level_name: str) -> Callable[[MessageLogger, str], None]:
     def log(self, message):
         self._log_data(level_name.lower(), message=message)
     log.__doc__ = """Log a message with level %s
@@ -270,7 +271,7 @@ class BrowserManager(object):
 
 class _RunnerManagerState(object):
     before_init = namedtuple("before_init", [])
-    initializing = namedtuple("initializing_browser",
+    initializing = namedtuple("initializing",
                               ["test", "test_group", "group_metadata", "failure_count"])
     running = namedtuple("running", ["test", "test_group", "group_metadata"])
     restarting = namedtuple("restarting", ["test", "test_group", "group_metadata"])

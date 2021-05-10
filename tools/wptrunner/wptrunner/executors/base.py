@@ -9,6 +9,7 @@ import socket
 import sys
 from abc import ABCMeta, abstractmethod
 from http.client import HTTPConnection
+from typing import Any, Callable, ClassVar, Tuple, Type
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from .actions import actions
@@ -242,8 +243,8 @@ class TestExecutor(object):
     """
     __metaclass__ = ABCMeta
 
-    test_type = None
-    convert_result = None
+    test_type = None  # type: ClassVar[str]
+    convert_result = None  # type: ClassVar[Callable[[Any, Any, Any], Any]]
     supports_testdriver = False
     supports_jsshell = False
     # Extra timeout to use after internal test timeout at which the harness
@@ -590,7 +591,7 @@ class RefTestImplementation(object):
 
 class WdspecExecutor(TestExecutor):
     convert_result = pytest_result_converter
-    protocol_cls = None
+    protocol_cls = None  # type: ClassVar[Type[Protocol]]
 
     def __init__(self, logger, browser, server_config, webdriver_binary,
                  webdriver_args, timeout_multiplier=1, capabilities=None,
@@ -708,7 +709,7 @@ class ConnectionlessProtocol(Protocol):
 
 
 class WdspecProtocol(Protocol):
-    server_cls = None
+    server_cls = None  # type: ClassVar[type]
 
     implements = [ConnectionlessBaseProtocolPart]
 
@@ -764,7 +765,7 @@ class CallbackHandler(object):
     WebDriver. Things that are more different to WebDriver may need to create a
     fully custom implementation."""
 
-    unimplemented_exc = (NotImplementedError,)
+    unimplemented_exc: Tuple[Type[Exception], ...] = (NotImplementedError,)
 
     def __init__(self, logger, protocol, test_window):
         self.protocol = protocol

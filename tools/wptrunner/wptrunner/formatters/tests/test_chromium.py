@@ -6,7 +6,7 @@ from io import StringIO
 from mozlog import handlers, structuredlog
 
 sys.path.insert(0, join(dirname(__file__), "..", ".."))
-from formatters.chromium import ChromiumFormatter
+from formatters.chromium import ChromiumFormatter  # type: ignore
 
 
 def test_chromium_required_fields(capfd):
