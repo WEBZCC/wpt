@@ -164,7 +164,32 @@ const invariants = {
 
     assert_equals(entry.fetchStart, entry.startTime,
       "fetchStart must equal startTime");
+  },
+
+  assert_tao_failure_resource: entry => {
+    assert_equals(entry.entryType, "resource", "entryType must always be 'resource'");
+
+    assert_positive_(entry, [
+      "startTime",
+      "duration",
+    ]);
+
+    assert_zeroed_(entry, [
+      "redirectStart",
+      "redirectEnd",
+      "domainLookupStart",
+      "domainLookupEnd",
+      "connectStart",
+      "connectEnd",
+      "secureConnectionStart",
+      "requestStart",
+      "responseStart",
+      "transferSize",
+      "encodedBodySize",
+      "decodedBodySize",
+    ]);
   }
+
 };
 
 // Given a resource-loader, a path (a relative path or absolute URL), and a
