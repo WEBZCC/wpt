@@ -110,6 +110,9 @@
 
     WindowTestEnvironment.prototype._dispatch = function(selector, callback_args, message_arg) {
         this.dispatched_messages.push(message_arg);
+        if (window.prefixedLocalStorage) {
+          window.prefixedLocalStorage.setItem('dispatched_messages.' + Math.random(), JSON.stringify(message_arg));
+        }
         this._forEach_windows(
                 function(w, same_origin) {
                     if (same_origin) {
@@ -3168,6 +3171,24 @@
         );
     };
 
+    /*
+     * Constructs a RemoteContext that tracks tests from prefixed local storage.
+     * Test results from a window where
+     * - `window.prefixedLocalStorage` is defined using `/common/PrefixedLocalStorage.js`
+     *   like `window.prefixedLocalStorage = new PrefixedLocalStorageResource();` and
+     * - testharness.js is loaded
+     * are received via `prefixedLocalStorage`.
+     */
+    Tests.prototype.create_remote_prefixed_local_storage = function(prefixedLocalStorage) {
+        const channel = new MessageChannel();
+        let index = 0;
+        prefixedLocalStorage.onSet('dispatched_messages', e => {
+          channel.port1.postMessage(JSON.parse(e.newValue));
+        });
+        channel.port2.start();
+        return new RemoteContext(null, channel.port2);
+    };
+
     Tests.prototype.fetch_tests_from_worker = function(worker) {
         if (this.phase >= this.phases.COMPLETE) {
             return;
@@ -3195,6 +3216,24 @@
         tests.fetch_tests_from_window(window);
     }
     expose(fetch_tests_from_window, 'fetch_tests_from_window');
+
+
+    Tests.prototype.fetch_tests_from_prefixed_local_storage = function(prefixedLocalStorage) {
+        if (this.phase >= this.phases.COMPLETE) {
+            return;
+        }
+
+        var remoteContext = this.create_remote_prefixed_local_storage(prefixedLocalStorage);
+        this.pending_remotes.push(remoteContext);
+        return remoteContext.done.then(() => {
+          prefixedLocalStorage.cleanup();
+        });
+    };
+
+    function fetch_tests_from_prefixed_local_storage(prefixedLocalStorage) {
+        return tests.fetch_tests_from_prefixed_local_storage(prefixedLocalStorage);
+    }
+    expose(fetch_tests_from_prefixed_local_storage, 'fetch_tests_from_prefixed_local_storage');
 
     function timeout() {
         if (tests.timeout_length === null) {
