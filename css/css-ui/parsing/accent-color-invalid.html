@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CSS UI Level 4: parsing accent-color with invalid values</title>
+<link rel="author" title="Joey Arhar" href="mailto:jarhar@chromium.org">
+<link rel="help" href="https://drafts.csswg.org/css-ui-4/#widget-accent">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/css/support/parsing-testcommon.js"></script>
+</head>
+<body>
+<script>
+test_invalid_value("accent-color", "none");
+test_invalid_value("accent-color", "invert");
+test_invalid_value("accent-color", "50%");
+test_invalid_value("accent-color", "red green");
+test_invalid_value("accent-color", "normal");
+test_invalid_value("accent-color", "123");
+</script>
+</body>
+</html>
